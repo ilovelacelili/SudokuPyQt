@@ -103,7 +103,7 @@ class SudokuWindow(QWidget):
         stats_title.setAlignment(Qt.AlignCenter)
 
         self.time_label = QLabel("⏱️ Tiempo: 00:00")
-        self.level_label = QLabel("🎯 Nivel: Medio")
+        self.level_label = QLabel("🎯 Modo: Medio")
 
         stats_layout.addWidget(stats_title)
         stats_layout.addSpacing(20)
@@ -156,8 +156,14 @@ class SudokuWindow(QWidget):
 
         self.grid = grid
         self.puzzle = puzzle
+
+        if dificultad not in ["Fácil", "Medio", "Difícil"]:
+            self.title.setText("🧩 Sudoku - Personalizado")
+            dificultad = dificultad.split(" - ")[0]
+            self.saveable = False
+
         self.dificultad = dificultad
-        self.level_label.setText(f"🎯 Nivel: {dificultad}")
+        self.level_label.setText(f"🎯 Modo: {dificultad}")
 
         self.segundos = 0
         self.time_label.setText("⏱️ Tiempo: 00:00")
@@ -240,7 +246,6 @@ class SudokuWindow(QWidget):
     def guardar_pasos(self, i, j):
         current_value = self.cells[i][j].text() if self.cells[i][j].text() != "" else 0
         self.steps += f"{i}{j}{current_value}"
-        print(self.steps)
 
     def confirmar_salida(self):
         '''No permite guardar si el Sudoku no está completo o se ha usado resolver/pista'''

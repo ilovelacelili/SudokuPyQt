@@ -102,11 +102,14 @@ class PreviewGameWindow(QWidget):
 
         self.time_label = QLabel("Pasos: 0")
         self.level_label = QLabel("🎯 Nivel: Medio")
+        play_game = QPushButton("¡Jugar este Sudoku!")
 
         stats_layout.addWidget(stats_title)
         stats_layout.addSpacing(20)
         stats_layout.addWidget(self.time_label)
         stats_layout.addWidget(self.level_label)
+        stats_layout.addSpacing(15)
+        stats_layout.addWidget(play_game)
 
         stats_widget = QWidget()
         stats_widget.setLayout(stats_layout)
@@ -120,7 +123,7 @@ class PreviewGameWindow(QWidget):
         # TIMER
         self.timer = QTimer()
         self.timer.timeout.connect(self.actualizar_tiempo)
-        self.timer.setInterval(1000)
+        self.timer.setInterval(500)
         self.n_step = -3
 
         # BOTONES
@@ -135,6 +138,7 @@ class PreviewGameWindow(QWidget):
         start_btn.clicked.connect(self.timer.start)
         pause_btn.clicked.connect(self.timer.stop)
         reset_btn.clicked.connect(self.resetear_pasos)
+        play_game.clicked.connect(self.jugar_sudoku)
 
         button_layout.addWidget(start_btn)
         button_layout.addWidget(pause_btn)
@@ -148,28 +152,32 @@ class PreviewGameWindow(QWidget):
         main_layout.addLayout(button_layout)
         self.setLayout(main_layout)
     
-    def resetear_pasos(self):
-        self.timer.stop()
-        for i in range(9):
-            for j in range(9):
-                cell = self.cells[i][j]
-                val = self.puzzle[i][j]
-                if val == 0:
-                    cell.setText("")
-                else:
-                    cell.setText(str(val)) 
+    def reconstruir_tablero(self, puzzle):
+        grid = [p[:] for p in puzzle]
+        i = 0
+        while i < len(self.steps) - 3:
+            step = self.steps[i: i + 3]
+            x, y, val = int(step[0]), int(step[1]), int(step[2])
+            grid[x][y] = val
+            i += 3
 
+        return grid
+        
+    
     def cargar_datos(self, game_data):
         if self.timer.isActive():
             self.timer.stop()
 
-        name, puzzle, steps, time = game_data
+        name, puzzle, steps, time, difficulty = game_data
 
         self.name = name
         self.puzzle = puzzle
         self.steps = steps
         self.time = time
-        print(self.steps)
+        self.dificultad = difficulty
+        self.grid = self.reconstruir_tablero(self.puzzle)
+
+        self.level_label.setText(f"🎯 Nivel: {self.dificultad}")
 
         for i in range(9):
             for j in range(9):
@@ -186,19 +194,17 @@ class PreviewGameWindow(QWidget):
     
     def actualizar_tiempo(self):
         self.n_step += 3
-        self.time_label.setText(f"Pasos: {self.n_step + 1}")
+        self.time_label.setText(f"Pasos: {self.n_step // 3 + 1}")
         self.siguiente_paso()
 
     def siguiente_paso(self):
-        print(f"n_step: {self.n_step}")
-        if self.n_step >= len(self.steps) // 3:
+        if self.n_step > len(self.steps) - 3:
             self.timer.stop()
             return
         
         step = self.steps[self.n_step: self.n_step + 3]
         x, y, val = int(step[0]), int(step[1]), int(step[2])
-        print(f"Step: {step} -> Setting cell ({x}, {y}) to {val}")
-        self.cells[x][y].setText(str(val))
+        self.cells[x][y].setText(str(val) if val != 0 else "")
         
         self.actualizar_paso(x, y, val)
         return True
@@ -206,10 +212,22 @@ class PreviewGameWindow(QWidget):
     def actualizar_paso(self, x, y, val):
         self.cells[x][y].setText(str(val))
 
+    def resetear_pasos(self):
+        self.timer.stop()
+        self.n_step = -3
+        self.time_label.setText("Pasos: 0")
+        for i in range(9):
+            for j in range(9):
+                cell = self.cells[i][j]
+                val = self.puzzle[i][j]
+                if val == 0:
+                    cell.setText("")
+                else:
+                    cell.setText(str(val)) 
+
+    def jugar_sudoku(self):
+        self.parent.iniciar_personalizado(self.grid, self.puzzle, self.dificultad)
+
     def confirmar_salida(self):
         self.timer.stop()
-        reply = QMessageBox.question(self, 'Confirmar Salida',
-                                     "¿Estás seguro de que deseas salir a el menú principal?", QMessageBox.Yes | 
-                                     QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
-            self.parent.ir_a("menu")
+        self.parent.ir_a("leaderboard")

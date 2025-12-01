@@ -25,15 +25,15 @@ class DBConnector:
 
     def cargar_juegos(self, difficulty):
         """Loads all games of a given difficulty from the database."""
-        self.cursor.execute('SELECT id, name, puzzle, steps, time FROM games WHERE difficulty = ? ORDER BY time', (difficulty,))
+        self.cursor.execute('SELECT id, name, puzzle, steps, time, difficulty FROM games WHERE difficulty = ? ORDER BY time', (difficulty,))
         rows = self.cursor.fetchall()
         games = {}
-        for id, name, puzzle_str, steps, time in rows:
+        for id, name, puzzle_str, steps, time, diff in rows:
             puzzle = []
             nums = list(map(int, puzzle_str.split(',')))
             for i in range(9):
                 puzzle.append(nums[i*9:(i+1)*9])
-            games[id] = (name, puzzle, steps, time)
+            games[id] = (name, puzzle, steps, time, diff)
 
         return games
 

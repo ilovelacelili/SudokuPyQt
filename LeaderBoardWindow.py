@@ -75,7 +75,7 @@ class LeaderBoardWindow(QWidget):
         if not self.scores:
             return
         else:
-            for id, (name, puzzle, steps, time) in self.scores.items():
+            for id, (name, puzzle, _, time, _) in self.scores.items():
                 minutes, seconds = divmod(time, 60)
                 item = QListWidgetItem(f"ID: {id}\t\tName: {name} - {minutes}m {seconds}s")
                 self.leaderboard_list.addItem(item)
