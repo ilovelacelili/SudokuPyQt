@@ -192,29 +192,42 @@ class SudokuWindow(QWidget):
 
     def verificar_sudoku(self):
         self.saveable = False
+        if self.verificar_completo():
+            return True
+        
         try:
             for i in range(9):
                 for j in range(9):
                     t = self.cells[i][j].text()
-                    if t != str(self.grid[i][j]):
-                        raise ValueError
-            
+                    if t != str(self.grid[i][j]) and t != "":
+                        raise ValueError("Error en el Sudoku")
+                    
             QMessageBox.information(self, "¡Vas Bien!", "✔ Todo parece válido hasta ahora.")
             return True
         
         except:
-            QMessageBox.warning(self, "Hay algún error", "Casi lo logras, pero hay errores en el Sudoku.")
+            QMessageBox.warning(self, "Hay algún error", "Algo no cuadra del todo. Revisa tus respuestas.")
             return False
         
     def verificar_completo(self):
         for i in range(9):
             for j in range(9):
                 t = self.cells[i][j].text()
-                if t == "" or not t.isdigit() or int(t) != self.grid[i][j]:
+                if t == "" :
                     return False
-        
+
+        for i in range(9):
+            for j in range(9):
+                t = self.cells[i][j].text()
+                if t != str(self.grid[i][j]):
+                    QMessageBox.warning(self, "No del todo...", "Ya casi estás ahí. No te rindas.")
+                    return False
+
         self.timer.stop()
         QMessageBox.information(self, "¡Felicidades!", f"🎉 ¡Has completado el Sudoku!\n Tiempo: {self.segundos // 60}m {self.segundos % 60}s")
+        for i in range(9):
+            for j in range(9):
+                self.cells[i][j].setReadOnly(True)
         return True
 
     def resolver_sudoku(self):
@@ -237,7 +250,6 @@ class SudokuWindow(QWidget):
         while self.cells[i][j].text() == str(self.grid[i][j]):
             i = random.randint(0, 8)
             j = random.randint(0, 8)
-            print('Choosing new cell for hint...', i, j)
         
         self.cells[i][j].setText(str(self.grid[i][j]))
         self.cells[i][j].setStyleSheet(self.cells[i][j].styleSheet() + "QLineEdit { color: green; font-weight: bold; }")
