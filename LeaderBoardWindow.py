@@ -57,8 +57,8 @@ class LeaderBoardWindow(QWidget):
 
         self.leaderboard_list = QListWidget()
         self.cargar_leaderboard(self.difficulty_dropdown.currentText())
-        self.leaderboard_list.itemClicked.connect(lambda item: self.ver_preview(self.db.cargar_juegos(self.difficulty_dropdown.currentText()).get(item.text().split(" - ")[0])))
-        
+        self.leaderboard_list.itemClicked.connect(lambda item: self.ver_preview(self.scores.get(int(item.text().split("\t")[0].split(": ")[1]))))
+
         btn_back = QPushButton("Volver al Menú")
         btn_back.clicked.connect(lambda: (self.db.close(), self.parent.ir_a("menu")))
         
@@ -70,12 +70,12 @@ class LeaderBoardWindow(QWidget):
     
     def cargar_leaderboard(self, difficulty):
         self.leaderboard_list.clear()
-        scores = self.db.cargar_juegos(difficulty)
+        self.scores = self.db.cargar_juegos(difficulty)
         
-        if not scores:
+        if not self.scores:
             return
         else:
-            for id, (name, puzzle, steps, time) in scores.items():
+            for id, (name, puzzle, steps, time) in self.scores.items():
                 minutes, seconds = divmod(time, 60)
                 item = QListWidgetItem(f"ID: {id}\t\tName: {name} - {minutes}m {seconds}s")
                 self.leaderboard_list.addItem(item)
@@ -83,11 +83,8 @@ class LeaderBoardWindow(QWidget):
     
     def ver_preview(self, game_data):
         if game_data is None:
-            return
-        
-        preview_window = PreviewGameWindow(self.parent)
-        preview_window.cargar_datos(game_data)
-        self.parent.ir_a("preview")
+            return  
+        self.parent.vista_previa(game_data)
 
     def format(self, puzzle):
         board_str = ""

@@ -24,6 +24,7 @@ class SudokuApp(QStackedWidget):
         self.addWidget(self.juego)
         self.addWidget(self.leaderboard)
         self.addWidget(self.personalizado)
+        self.addWidget(self.preview)
 
         self.setFixedSize(850, 750)
         self.ir_a("menu")

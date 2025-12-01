@@ -100,7 +100,7 @@ class PreviewGameWindow(QWidget):
         stats_title = QLabel("📊 Estadísticas")
         stats_title.setAlignment(Qt.AlignCenter)
 
-        self.time_label = QLabel("⏱️ Tiempo: 00:00")
+        self.time_label = QLabel("Pasos: 0")
         self.level_label = QLabel("🎯 Nivel: Medio")
 
         stats_layout.addWidget(stats_title)
@@ -119,14 +119,15 @@ class PreviewGameWindow(QWidget):
 
         # TIMER
         self.timer = QTimer()
-        self.timer.timeout.connect(self.siguiente_paso)
-        self.timer.setInterval(1500)
+        self.timer.timeout.connect(self.actualizar_tiempo)
+        self.timer.setInterval(1000)
+        self.n_step = -3
 
         # BOTONES
         button_layout = QHBoxLayout()
         button_layout.setSpacing(20)
 
-        # Timer buttons for previewing steps
+        # Botones para controlar la reproducción del preview
         start_btn = QPushButton("Iniciar")
         pause_btn = QPushButton("Pausar")
         reset_btn = QPushButton("Reiniciar")
@@ -162,14 +163,13 @@ class PreviewGameWindow(QWidget):
         if self.timer.isActive():
             self.timer.stop()
 
-        name, puzzle, steps, time, dificultad = game_data
+        name, puzzle, steps, time = game_data
 
         self.name = name
         self.puzzle = puzzle
         self.steps = steps
         self.time = time
-        self.dificultad = dificultad
-        self.level_label.setText(f"🎯 Nivel: {dificultad}")
+        print(self.steps)
 
         for i in range(9):
             for j in range(9):
@@ -185,19 +185,31 @@ class PreviewGameWindow(QWidget):
                     cell.setReadOnly(True)
     
     def actualizar_tiempo(self):
-        self.n_step += 1
-        self.siguiente_paso(self.n_step)
+        self.n_step += 3
+        self.time_label.setText(f"Pasos: {self.n_step + 1}")
+        self.siguiente_paso()
 
-    def siguiente_paso(self, n):
-        if self.n_step >= len(self.steps):
+    def siguiente_paso(self):
+        print(f"n_step: {self.n_step}")
+        if self.n_step >= len(self.steps) // 3:
             self.timer.stop()
             return
         
         step = self.steps[self.n_step: self.n_step + 3]
         x, y, val = int(step[0]), int(step[1]), int(step[2])
+        print(f"Step: {step} -> Setting cell ({x}, {y}) to {val}")
         self.cells[x][y].setText(str(val))
         
-        return x, y, val
+        self.actualizar_paso(x, y, val)
+        return True
+    
+    def actualizar_paso(self, x, y, val):
+        self.cells[x][y].setText(str(val))
 
     def confirmar_salida(self):
-        self.parent.ir_a("menu")
+        self.timer.stop()
+        reply = QMessageBox.question(self, 'Confirmar Salida',
+                                     "¿Estás seguro de que deseas salir a el menú principal?", QMessageBox.Yes | 
+                                     QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            self.parent.ir_a("menu")
