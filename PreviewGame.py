@@ -100,11 +100,14 @@ class PreviewGameWindow(QWidget):
         stats_title = QLabel("📊 Estadísticas")
         stats_title.setAlignment(Qt.AlignCenter)
 
+        self.player_label = QLabel("Jugador: Invitado")
         self.time_label = QLabel("Pasos: 0")
         self.level_label = QLabel("🎯 Nivel: Medio")
         play_game = QPushButton("¡Jugar este Sudoku!")
 
         stats_layout.addWidget(stats_title)
+        stats_layout.addSpacing(10)
+        stats_layout.addWidget(self.player_label)
         stats_layout.addSpacing(20)
         stats_layout.addWidget(self.time_label)
         stats_layout.addWidget(self.level_label)
@@ -178,6 +181,8 @@ class PreviewGameWindow(QWidget):
         self.grid = self.reconstruir_tablero(self.puzzle)
 
         self.level_label.setText(f"🎯 Nivel: {self.dificultad}")
+        self.player_label.setText(f"Jugador: {self.name}")
+        self.time_label.setText("Pasos: 0")
 
         for i in range(9):
             for j in range(9):
