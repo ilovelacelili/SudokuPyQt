@@ -42,18 +42,19 @@ class VentanaDificultad(QWidget):
         btn_easy = QPushButton("Fácil")
         btn_med = QPushButton("Medio")
         btn_hard = QPushButton("Difícil")
-        btn_personalized = QPushButton("Personalizado")
+        btn_back = QPushButton("Volver al Menú")
 
         btn_easy.clicked.connect(lambda: self.parent.iniciar_juego("Fácil"))
         btn_med.clicked.connect(lambda: self.parent.iniciar_juego("Medio"))
         btn_hard.clicked.connect(lambda: self.parent.iniciar_juego("Difícil"))
-        btn_personalized.clicked.connect(lambda: self.parent.iniciar_juego("Personalizado"))
+        btn_back.clicked.connect(lambda: self.parent.ir_a("menu"))
 
         layout.addWidget(label)
         layout.addSpacing(25)
         layout.addWidget(btn_easy)
         layout.addWidget(btn_med)
         layout.addWidget(btn_hard)
-        layout.addWidget(btn_personalized)
+        layout.addSpacing(15)
+        layout.addWidget(btn_back)
 
         self.setLayout(layout)

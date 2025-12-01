@@ -5,7 +5,7 @@ from DifficultyWindow import VentanaDificultad
 from SudokuWindow import SudokuWindow
 from MainMenu import MenuInicial
 from LeaderBoardWindow import LeaderBoardWindow
-from PersonalizedGame import VentanaPersonalizada
+from PreviewGame import PreviewGameWindow
 
 class SudokuApp(QStackedWidget):
     def __init__(self):
@@ -15,13 +15,13 @@ class SudokuApp(QStackedWidget):
         self.dificultad = VentanaDificultad(self)
         self.juego = SudokuWindow(self)
         self.leaderboard = LeaderBoardWindow(self)
-        self.personalizado = VentanaPersonalizada(self)
+        self.preview = PreviewGameWindow(self)
 
         self.addWidget(self.menu)
         self.addWidget(self.dificultad)
         self.addWidget(self.juego)
         self.addWidget(self.leaderboard)
-        self.addWidget(self.personalizado)
+        self.addWidget(self.preview)
 
         self.setFixedSize(850, 750)
         self.ir_a("menu")
@@ -33,19 +33,23 @@ class SudokuApp(QStackedWidget):
             self.setCurrentWidget(self.dificultad)
         elif destino == "juego":
             self.setCurrentWidget(self.juego)
-        elif destino == "personalizado":
-            self.setCurrentWidget(self.personalizado)
         elif destino == "leaderboard":
             self.setCurrentWidget(self.leaderboard)
+        elif destino == "preview":
+            self.setCurrentWidget(self.preview)
 
-    def iniciar_juego(self, dificultad):
-        if dificultad == "Personalizado":
-            self.ir_a("personalizado")
-            return
-        
+    def vista_previa(self, game_data):
+        self.preview.cargar_datos(game_data)
+        self.ir_a("preview")
+
+    def iniciar_juego(self, dificultad):     
         base = self.generar_sudoku_completo()
         puzzle = self.remover_celdas(base, dificultad)
         self.juego.cargar_tablero(base, puzzle, dificultad)
+        self.ir_a("juego")
+
+    def iniciar_personalizado(self, base, puzzle, dificultad):
+        self.juego.cargar_tablero(base, puzzle, dificultad + " - Personalizado")
         self.ir_a("juego")
 
     def generar_sudoku_completo(self):
