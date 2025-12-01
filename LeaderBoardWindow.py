@@ -56,6 +56,9 @@ class LeaderBoardWindow(QWidget):
         layout.addWidget(self.difficulty_dropdown)
 
         self.leaderboard_list = QListWidget()
+        self.cargar_leaderboard(self.difficulty_dropdown.currentText())
+        self.leaderboard_list.itemClicked.connect(lambda item: self.ver_preview(self.db.cargar_juegos(self.difficulty_dropdown.currentText()).get(item.text().split(" - ")[0])))
+        
         btn_back = QPushButton("Volver al Menú")
         btn_back.clicked.connect(lambda: (self.db.close(), self.parent.ir_a("menu")))
         
@@ -63,22 +66,29 @@ class LeaderBoardWindow(QWidget):
         layout.addWidget(self.leaderboard_list)
         layout.addWidget(btn_back)
         self.setLayout(layout)
-        self.cargar_leaderboard(self.difficulty_dropdown.currentText())
+       
     
     def cargar_leaderboard(self, difficulty):
         self.leaderboard_list.clear()
         scores = self.db.cargar_juegos(difficulty)
         
         if not scores:
-            self.leaderboard_list.addItem("No hay puntajes registrados aún.")
+            return
         else:
-            for name, puzzle, time in scores:
+            for id, (name, puzzle, steps, time) in scores.items():
                 minutes, seconds = divmod(time, 60)
-                item = QListWidgetItem(f"{name} - {minutes}m {seconds}s")
-                item.setTextAlignment(Qt.AlignCenter)
+                item = QListWidgetItem(f"ID: {id}\t\tName: {name} - {minutes}m {seconds}s")
                 self.leaderboard_list.addItem(item)
                 self.leaderboard_list.item(self.leaderboard_list.count() - 1).setToolTip(f"Puzzle:\n{self.format(puzzle)}")
     
+    def ver_preview(self, game_data):
+        if game_data is None:
+            return
+        
+        preview_window = PreviewGameWindow(self.parent)
+        preview_window.cargar_datos(game_data)
+        self.parent.ir_a("preview")
+
     def format(self, puzzle):
         board_str = ""
         for row in puzzle:

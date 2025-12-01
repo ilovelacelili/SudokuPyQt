@@ -6,6 +6,7 @@ from SudokuWindow import SudokuWindow
 from MainMenu import MenuInicial
 from LeaderBoardWindow import LeaderBoardWindow
 from PersonalizedGame import VentanaPersonalizada
+from PreviewGame import PreviewGameWindow
 
 class SudokuApp(QStackedWidget):
     def __init__(self):
@@ -16,6 +17,7 @@ class SudokuApp(QStackedWidget):
         self.juego = SudokuWindow(self)
         self.leaderboard = LeaderBoardWindow(self)
         self.personalizado = VentanaPersonalizada(self)
+        self.preview = PreviewGameWindow(self)
 
         self.addWidget(self.menu)
         self.addWidget(self.dificultad)
@@ -37,6 +39,12 @@ class SudokuApp(QStackedWidget):
             self.setCurrentWidget(self.personalizado)
         elif destino == "leaderboard":
             self.setCurrentWidget(self.leaderboard)
+        elif destino == "preview":
+            self.setCurrentWidget(self.preview)
+
+    def vista_previa(self, game_data):
+        self.preview.cargar_datos(game_data)
+        self.ir_a("preview")
 
     def iniciar_juego(self, dificultad):
         if dificultad == "Personalizado":
