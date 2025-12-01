@@ -1,4 +1,3 @@
-# Connect to a SQLite database (or create it if it doesn't exist)
 import sqlite3
 
 class DBConnector:
